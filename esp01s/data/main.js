@@ -1,42 +1,44 @@
 const socket = new WebSocket('ws://192.168.4.1:8080');
+var both = false;
+var servo1 = 90;
+var servo2 = 90;
+var motor = 0;
+
+function enviar() {
+    socket.send(String.fromCharCode(servo1, servo2, motor))
+}
+
 socket.addEventListener('open', function () {
-    socket.send('Hello Server!');
-    document.addEventListener('keydown', function(e) {
-        if (e.repeat) {return}
-        if (e.key === "ArrowUp") {
-            socket.send("upp");
-        } else if (e.key === "ArrowLeft") {
-            socket.send("leftp");
-        } else if (e.key === "ArrowRight") {
-            socket.send("rightp");
+    enviar()
+    document.getElementById("both").addEventListener('change', ()=>{
+        if (both) {
+            both = false;
+        } else {
+            both = true;
         }
-    });
-    document.addEventListener('keyup', function(e) {
-        if (e.repeat) {return}
-        if (e.key === "ArrowUp") {
-            socket.send("upr");
-        } else if (e.key === "ArrowLeft") {
-            socket.send("leftr");
-        } else if (e.key === "ArrowRight") {
-            socket.send("rightr");
+    })
+    document.getElementById("servo1").addEventListener('input', (event)=>{
+        servo1 = document.getElementById("servo1").value
+        if (both) {
+            servo2 = document.getElementById("servo1").value
+            document.getElementById("servo2").value = servo1
         }
+        enviar()
     });
-    document.getElementById("left").addEventListener('touchstart', ()=>{
-        socket.send("leftp");
+    document.getElementById("servo2").addEventListener('input', (event)=>{
+        servo2 = document.getElementById("servo2").value
+        if (both) {
+            servo1 = document.getElementById("servo2").value
+            document.getElementById("servo1").value = servo2
+        }
+        enviar()
     });
-    document.getElementById("left").addEventListener('touchend', ()=>{
-        socket.send("leftr");
+    document.getElementById("on").addEventListener('click', ()=>{
+        motor = 1
+        enviar()
     });
-    document.getElementById("right").addEventListener('touchstart', ()=>{
-        socket.send("rightp");
-    });
-    document.getElementById("right").addEventListener('touchend', ()=>{
-        socket.send("rightr");
-    });
-    document.getElementById("up").addEventListener('touchstart', ()=>{
-        socket.send("upp");
-    });
-    document.getElementById("up").addEventListener('touchend', ()=>{
-        socket.send("upr");
+    document.getElementById("off").addEventListener('click', ()=>{
+        motor = 0
+        enviar()
     });
 });
